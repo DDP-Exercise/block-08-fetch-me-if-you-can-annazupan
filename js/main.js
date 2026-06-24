@@ -25,5 +25,52 @@
  *    where "1" stands for the posts ID of course.
  *
  *    I believe in...
- *    You - 2026-06-09
+ *    Anna Zupan - 2026-06-23
  *  *******************************************************/
+
+function printUsers() {
+    for (let user of myOwnUsers) {
+        document.body.innerHTML += "<div data-userid='" + user.id + "'>" + user.printUsers() + "</div>";
+    }
+}
+
+document.body.addEventListener("click", function(e) {
+
+    if (e.target.tagName === "H2") {
+        let div = e.target.parentElement;
+        let userId = div.dataset.userid;
+        let postsDiv = div.querySelector(".posts");
+
+        if (postsDiv) {
+            postsDiv.remove();
+        } else {
+            let html = "<div class='posts'>";
+            for (let user of myOwnUsers) {
+                if (user.id === +userId) {
+                    for (let post of user.posts) {
+                        html += post.printPosts();
+                    }
+                }
+            }
+            html += "</div>";
+            div.innerHTML += html;
+        }
+    }
+
+    // Comments laden
+    if (e.target.tagName === "BUTTON") {
+        let postId = e.target.dataset.postid;
+        fetch("https://jsonplaceholder.typicode.com/posts/" + postId + "/comments")
+            .then(response => response.json())
+            .then(comments => {
+                let html = "";
+                for (let comment of comments) {
+                    html += "<p><strong>" + comment.name + "</strong>: " + comment.body + "</p>";
+                }
+                e.target.insertAdjacentHTML("afterend", html);
+                e.target.remove();
+            });
+    }
+});
+
+fetchUsers();
